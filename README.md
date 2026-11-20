@@ -23,11 +23,19 @@ No matching heading: Cleaning
 
 If the table of contents style uses Include Book Documents, open the book (.indb) first. The script then reads the headings in every chapter. Chapters that are not open are opened without a window and closed without saving.
 
-Headings on the pasteboard or in overset text are skipped and counted, because InDesign leaves them out of the table of contents too. Text is compared after line breaks, tabs and repeated spaces become one space, so a contents line that was shortened on purpose is reported as a mismatch.
+How it matches:
+
+- The script reads only the table of contents style that made the table of contents, judged by the paragraph styles in it. If two styles use the same entry styles, they are combined and the alert says so.
+- Styles in a style group are matched with the group name (Heads:Section and Sidebar:Section are different).
+- The page number is what follows the last tab. Without a tab, the script takes trailing digits or a roman numeral after the heading text. That is a guess, so use a tab as the separator if you can.
+- Headings with the same text are first paired with the line that has their own page number.
+- Text is compared after line breaks, tabs and repeated spaces become one space, so a contents line that was shortened on purpose is reported as a mismatch.
+- Headings on the pasteboard or in overset text are skipped and counted. Headings on hidden layers are skipped unless the style has Include Text on Hidden Layers on.
+- If a book chapter file is missing, the alert lists it and does not say the book matches.
 
 ## Tested with
 
-Adobe InDesign 2026 (21.6) on Windows, on test documents built by the scripts in [tests](tests) (run through COM with pywin32). Their output is in [tests/test-log.txt](tests/test-log.txt). Not tested on macOS, other InDesign versions, page numbers with section prefixes, page numbers before the entry, run-in entries, or documents with more than one table of contents.
+Adobe InDesign 2026 (21.6) on Windows, on test documents built by the scripts in [tests](tests) (run through COM with pywin32). Their output is in [tests/test-log.txt](tests/test-log.txt). Not tested on macOS, other InDesign versions, page numbers with section prefixes, page numbers before the entry, run-in entries, documents with more than one table of contents, chapters with unsaved changes, headings in overset text, or numbering settings other than the default.
 
 ## Custom scripts
 

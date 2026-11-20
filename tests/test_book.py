@@ -66,6 +66,10 @@ try {
     front.createTOC(ts, true, book, [b[1] + 3, b[0] + 3], false);
     log.push("[3 regenerated] " + checkTOC(front));
     log.push("open docs at end: " + app.documents.length);
+    // ch2 is moved away while the book is open
+    new File(ROOT + "ch2.indd").rename("ch2-moved.indd");
+    log.push("[3b ch2 file missing] " + checkTOC(front));
+    new File(ROOT + "ch2-moved.indd").rename("ch2.indd");
     book.close(SaveOptions.YES); book = null;
     log.push("[4 book closed] " + checkTOC(front));
 } catch (err) {

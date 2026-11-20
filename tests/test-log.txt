@@ -44,6 +44,9 @@ open docs at end: 1
 [3b ch2 file missing] No matching heading: Printing labels
 No matching heading: Cleaning the head
 Missing chapter file: ch2.indd
+[3c appendix added] TOC matches the headings (4 checked in t.indb).
+[3d appendix file missing] No differences in the chapters that could be read. The book was not fully checked.
+Missing chapter file: appendix.indd
 [4 book closed] This TOC takes headings from a book. Open the book (.indb) that contains this document and run the script again.
 docs open after test: 0
 
@@ -64,4 +67,24 @@ docs open before test: 0
 [G edited] TOC: PrintingLabels5
   Not in TOC (p.5): Printing
 No matching heading: PrintingLabels5
+[H fresh] TOC matches the headings (1 checked).
+[I restyled] Could not tell which table of contents style made this table of contents: its lines use none of the entry styles in Layout > Table of Contents Styles. Nothing was checked.
+[J fresh] TOC: 1.<TAB>API2 | 1.<TAB>UI4
+  TOC matches the headings (2 checked).
+[K fresh] TOC: 1.<TAB>Cleaning<TAB>3
+  TOC matches the headings (1 checked).
+[K number 99] TOC: 99.<TAB>Cleaning<TAB>3
+  Not in TOC (p.3): Cleaning
+No matching heading: 99. Cleaning
+[K extra word] TOC: Wrong Cleaning<TAB>3
+  Not in TOC (p.3): Cleaning
+No matching heading: Wrong Cleaning
+[L fresh] TOC: Introduction
+  TOC matches the headings (1 checked).
+[L moved] TOC matches the headings (1 checked).
+[M fresh] TOC: Basics | Loading paper<TAB>3
+  TOC matches the headings (2 checked).
+[M both moved] Page moved 3 -> 5: Loading paper
+[N fresh] This TOC takes headings from a book. Open the book (.indb) that contains this document and run the script again.
+These TOC styles use the same entry styles, so their headings were combined: Main, Old book TOC.
 docs open after test: 0

@@ -41,34 +41,43 @@ function readDoc(d, set, readToc, r) {
             var p = st.paragraphs[k];
             var raw = String(p.contents).replace(/\r$/, "");
             if (isToc) {
-                var tab = raw.lastIndexOf("\t"), pg = null;
-                if (tab >= 0 && PAGE.test(clean(raw.substring(tab + 1)))) { pg = clean(raw.substring(tab + 1)); raw = raw.substring(0, tab); }
-                var t = clean(raw);
+                var t = shown(raw);
                 if (!t || (k === 0 && set.titles[t])) { continue; } // the TOC title
-                // pg null: no tab, the page number is glued to the entry
-                r.toc.push({ t: t, pg: pg || null });
+                r.toc.push({ raw: raw, t: t });
             } else if (set.styles[stylePath(p.appliedParagraphStyle)]) {
                 var h = clean(raw);
                 if (!h) { continue; }
                 var fr = p.characters[0].parentTextFrames[0];
                 if (!fr || !fr.parentPage) { r.skipped++; continue; } // pasteboard or overset
                 if (!set.hidden && !fr.itemLayer.visible) { r.hidden++; continue; }
-                r.heads.push({ t: h, pg: fr.parentPage.name, doc: d.name,
-                    num: p.bulletsAndNumberingListType == ListType.NUMBERED_LIST });
+                // a numbered heading appears in the TOC with its current number, e.g. "2. Cleaning"
+                var keys = [h];
+                if (p.bulletsAndNumberingListType == ListType.NUMBERED_LIST) {
+                    keys.unshift(clean(p.bulletsAndNumberingResultText + " " + h));
+                }
+                r.heads.push({ t: h, keys: keys, pg: fr.parentPage.name, doc: d.name });
             }
         }
     }
 }
 
-// Page number the TOC line e gives for heading h, or null if e is not that heading.
+// A TOC line as shown in the report: without its page number when it has a tab before it.
+function shown(raw) {
+    var tab = raw.lastIndexOf("\t");
+    if (tab >= 0 && PAGE.test(clean(raw.substring(tab + 1)))) { return clean(raw.substring(0, tab)); }
+    return clean(raw);
+}
+
+// Page number the TOC line e gives for heading h: "" if the line has no page number,
+// null if e is not that heading.
 function pageFor(e, h) {
-    var texts = [e.t];
-    if (h.num) { texts.push(e.t.replace(/^\S+\s+/, "")); } // "1. Heading" from list numbering
-    for (var i = 0; i < texts.length; i++) {
-        var t = texts[i];
-        if (e.pg !== null) { if (t === h.t) { return e.pg; } }
-        else if (t.indexOf(h.t) === 0) {
-            var rest = clean(t.substring(h.t.length).replace(/^[\s.]+/, ""));
+    var tab = e.raw.lastIndexOf("\t"), whole = clean(e.raw);
+    for (var i = 0; i < h.keys.length; i++) {
+        var key = h.keys[i];
+        if (tab >= 0 && clean(e.raw.substring(0, tab)) === key) { return clean(e.raw.substring(tab + 1)); }
+        if (whole === key) { return ""; } // TOC without page numbers
+        if (whole.indexOf(key) === 0) { // no tab: the page number is glued to the entry
+            var rest = clean(whole.substring(key.length).replace(/^[\s.]+/, ""));
             if (/^(\d+|[ivxlcdm]+)$/i.test(rest)) { return rest; } // digits only: a guess
         }
     }
@@ -78,23 +87,28 @@ function pageFor(e, h) {
 function checkTOC(doc) {
     var i, j, k, tocs = tocStories(doc);
     if (!tocs.length) { return "No table of contents found in this document."; }
-    // paragraph styles used in the TOC, to tell which TOC style made it
-    var inToc = {};
+    // paragraph styles of the TOC entries (not the title), to tell which TOC style made it
+    var anyTitle = {}, inToc = {};
+    for (i = 0; i < doc.tocStyles.length; i++) { if (doc.tocStyles[i].title) { anyTitle[clean(doc.tocStyles[i].title)] = true; } }
     for (i = 0; i < tocs.length; i++) {
-        for (k = 0; k < tocs[i].paragraphs.length; k++) { inToc[stylePath(tocs[i].paragraphs[k].appliedParagraphStyle)] = true; }
+        for (k = 0; k < tocs[i].paragraphs.length; k++) {
+            var tp = tocs[i].paragraphs[k];
+            if (k === 0 && anyTitle[clean(tp.contents)]) { continue; }
+            inToc[stylePath(tp.appliedParagraphStyle)] = true;
+        }
     }
-    var cands = [], used = [];
+    var used = [];
     for (i = 0; i < doc.tocStyles.length; i++) {
         var ts = doc.tocStyles[i];
-        if (!ts.tocStyleEntries.length) { continue; }
-        cands.push(ts);
         for (j = 0; j < ts.tocStyleEntries.length; j++) {
             var en = ts.tocStyleEntries[j], fs = en.formatStyle;
             var look = (typeof fs === "string" || !fs.name) ? en.name : stylePath(fs); // [Same Style]
             if (inToc[look]) { used.push(ts); break; }
         }
     }
-    if (!used.length) { used = cands; }
+    if (!used.length) {
+        return "Could not tell which table of contents style made this table of contents: its lines use none of the entry styles in Layout > Table of Contents Styles. Nothing was checked.";
+    }
     var set = { styles: {}, titles: {}, hidden: false }, wantBook = false;
     for (i = 0; i < used.length; i++) {
         if (used[i].title) { set.titles[clean(used[i].title)] = true; }
@@ -103,7 +117,11 @@ function checkTOC(doc) {
         for (j = 0; j < used[i].tocStyleEntries.length; j++) { set.styles[used[i].tocStyleEntries[j].name] = true; }
     }
     var r = { toc: [], heads: [], skipped: 0, hidden: 0 }, notes = [];
-    if (used.length > 1) { notes.push("Headings from " + used.length + " TOC styles were combined."); }
+    if (used.length > 1) {
+        var names = [];
+        for (i = 0; i < used.length; i++) { names.push(used[i].name); }
+        notes.push("These TOC styles use the same entry styles, so their headings were combined: " + names.join(", ") + ".");
+    }
     var me = pathOf(doc), book = null;
     if (wantBook && me) {
         for (i = 0; i < app.books.length && !book; i++) {
@@ -113,7 +131,7 @@ function checkTOC(doc) {
         }
     }
     if (wantBook && !book) {
-        return "This TOC takes headings from a book. Open the book (.indb) that contains this document and run the script again.";
+        return ["This TOC takes headings from a book. Open the book (.indb) that contains this document and run the script again."].concat(notes).join("\n");
     }
     var missing = 0;
     if (!book) {
@@ -145,7 +163,7 @@ function checkTOC(doc) {
     for (i = 0; i < heads.length; i++) {
         var h = heads[i], where = (book ? h.doc + " " : "") + "p." + h.pg;
         if (pages[i] === undefined) { out.push("Not in TOC (" + where + "): " + h.t); }
-        else if (pages[i] !== h.pg) { out.push("Page moved " + pages[i] + " -> " + h.pg + (book ? " (" + h.doc + ")" : "") + ": " + h.t); }
+        else if (pages[i] !== "" && pages[i] !== h.pg) { out.push("Page moved " + pages[i] + " -> " + h.pg + (book ? " (" + h.doc + ")" : "") + ": " + h.t); }
     }
     for (j = 0; j < toc.length; j++) {
         if (!taken[j]) { out.push("No matching heading: " + toc[j].t); }

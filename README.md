@@ -25,9 +25,10 @@ If the table of contents style uses Include Book Documents, open the book (.indb
 
 How it matches:
 
-- The script reads only the table of contents style that made the table of contents, judged by the paragraph styles in it. If two styles use the same entry styles, they are combined and the alert says so.
+- The script infers which table of contents style made the table of contents by comparing the paragraph styles of its lines (not the title) with each style's entry styles, and reads only the styles that match. If two styles use the same entry styles, they are combined and the alert names them. If none match, the script stops and checks nothing.
 - Styles in a style group are matched with the group name (Heads:Section and Sidebar:Section are different).
-- The page number is what follows the last tab. Without a tab, the script takes trailing digits or a roman numeral after the heading text. That is a guess, so use a tab as the separator if you can.
+- A contents line matches a heading when the text before its last tab is the heading (the rest is the page number), when the whole line is the heading (no page number, so the page is not checked), or when it starts with the heading followed by digits or a roman numeral. The last one is a guess for entries with no tab, so use a tab as the separator if you can.
+- Numbered headings match with their current number in front ("1. Getting started") or without it. A line with an old number does not match.
 - Headings with the same text are first paired with the line that has their own page number.
 - Text is compared after line breaks, tabs and repeated spaces become one space, so a contents line that was shortened on purpose is reported as a mismatch.
 - Headings on the pasteboard or in overset text are skipped and counted. Headings on hidden layers are skipped unless the style has Include Text on Hidden Layers on.
@@ -35,7 +36,7 @@ How it matches:
 
 ## Tested with
 
-Adobe InDesign 2026 (21.6) on Windows, on test documents built by the scripts in [tests](tests) (run through COM with pywin32). Their output is in [tests/test-log.txt](tests/test-log.txt). Not tested on macOS, other InDesign versions, page numbers with section prefixes, page numbers before the entry, run-in entries, documents with more than one table of contents, chapters with unsaved changes, headings in overset text, or numbering settings other than the default.
+Adobe InDesign 2026 (21.6) on Windows, on test documents built by the scripts in [tests](tests) (run through COM with pywin32). Their output is in [tests/test-log.txt](tests/test-log.txt). Not tested on macOS, other InDesign versions, page numbers with section prefixes, page numbers before the entry, run-in entries, documents with more than one table of contents, chapters with unsaved changes, headings in overset text, or numbered headings with numbering settings changed in the TOC style.
 
 ## Custom scripts
 

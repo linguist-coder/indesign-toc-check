@@ -70,6 +70,12 @@ try {
     new File(ROOT + "ch2.indd").rename("ch2-moved.indd");
     log.push("[3b ch2 file missing] " + checkTOC(front));
     new File(ROOT + "ch2-moved.indd").rename("ch2.indd");
+    // an appendix with no headings is added at the end, then moved away
+    mk("appendix.indd", 1, []).close(SaveOptions.NO);
+    book.bookContents.add(new File(ROOT + "appendix.indd")); book.repaginate();
+    log.push("[3c appendix added] " + checkTOC(front));
+    new File(ROOT + "appendix.indd").rename("appendix-moved.indd");
+    log.push("[3d appendix file missing] " + checkTOC(front));
     book.close(SaveOptions.YES); book = null;
     log.push("[4 book closed] " + checkTOC(front));
 } catch (err) {

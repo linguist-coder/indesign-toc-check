@@ -111,6 +111,104 @@ run("G no tab, heading shortened", function () {
     return d;
 });
 
+// --- Cases from review round 2 ---
+function setLine(d, k, text) { // replace the text of TOC line k, keep its paragraph return
+    var p = tocStories(d)[0].paragraphs[k], last = p.characters[-1].contents == "\r";
+    p.contents = text + (last ? "\r" : "");
+}
+function pageOf(d, k) { var c = String(tocStories(d)[0].paragraphs[k].contents).replace(/\r$/, ""); return c.substring(c.lastIndexOf("\t") + 1); }
+
+// H: the TOC title uses the entry style of an unused figure list style that has Include Book Documents on
+run("H title style shared with unused style", function () {
+    var d = newDoc(3), h = d.paragraphStyles.add({name: "Head"}), cap = d.paragraphStyles.add({name: "Caption"});
+    var figList = d.paragraphStyles.add({name: "Figure List"});
+    put(d, 1, "Getting started", h); put(d, 2, "Figure 1 Paper path", cap);
+    var ts = d.tocStyles.add({name: "Main"}); ts.title = "Contents"; ts.titleStyle = figList;
+    var e = ts.tocStyleEntries.add({name: "Head"}); e.separator = "^t";
+    var fig = d.tocStyles.add({name: "Figures"}); fig.title = "Figures";
+    var fe = fig.tocStyleEntries.add({name: "Caption"}); fe.formatStyle = figList; fig.includeBookDocuments = true;
+    toc(d, ts);
+    log.push("[H fresh] " + checkTOC(d));
+    return d;
+});
+
+// I: the TOC lines were restyled by hand, so no TOC style matches
+run("I restyled TOC lines", function () {
+    var d = newDoc(3), h = d.paragraphStyles.add({name: "Head"}), body = d.paragraphStyles.add({name: "Body"});
+    put(d, 1, "Getting started", h);
+    var ts = d.tocStyles.add({name: "Main"}); var e = ts.tocStyleEntries.add({name: "Head"}); e.separator = "^t";
+    toc(d, ts);
+    var ps = tocStories(d)[0].paragraphs;
+    for (var k = 0; k < ps.length; k++) { ps[k].appliedParagraphStyle = body; }
+    log.push("[I restyled] " + checkTOC(d));
+    return d;
+});
+
+// J: short numbered headings, no tab before the page number (review: 1.<TAB>API2)
+run("J short numbered headings", function () {
+    var d = newDoc(4);
+    var n = d.paragraphStyles.add({name: "NumHead", bulletsAndNumberingListType: ListType.NUMBERED_LIST});
+    put(d, 1, "API", n); put(d, 3, "UI", n);
+    var ts = d.tocStyles.add({name: "Main"}); ts.tocStyleEntries.add({name: "NumHead"});
+    toc(d, ts);
+    log.push("[J fresh] TOC: " + tocText(d) + "\n  " + checkTOC(d));
+    return d;
+});
+
+// K: a numbered heading whose TOC line has the wrong number or an extra word
+run("K wrong number in TOC line", function () {
+    var d = newDoc(4);
+    var n = d.paragraphStyles.add({name: "NumHead", bulletsAndNumberingListType: ListType.NUMBERED_LIST});
+    put(d, 2, "Cleaning", n);
+    var ts = d.tocStyles.add({name: "Main"}); var e = ts.tocStyleEntries.add({name: "NumHead"}); e.separator = "^t";
+    toc(d, ts);
+    log.push("[K fresh] TOC: " + tocText(d) + "\n  " + checkTOC(d));
+    var pg = pageOf(d, 0);
+    setLine(d, 0, "99.\tCleaning\t" + pg);
+    log.push("[K number 99] TOC: " + tocText(d) + "\n  " + checkTOC(d));
+    setLine(d, 0, "Wrong Cleaning\t" + pg);
+    log.push("[K extra word] TOC: " + tocText(d) + "\n  " + checkTOC(d));
+    return d;
+});
+
+// L: TOC entries without page numbers, then the heading frame moves
+run("L no page numbers", function () {
+    var d = newDoc(4), h = d.paragraphStyles.add({name: "Head"});
+    var f = put(d, 1, "Introduction", h);
+    var ts = d.tocStyles.add({name: "Main"}); var e = ts.tocStyleEntries.add({name: "Head"});
+    e.pageNumberPosition = PageNumberPosition.NONE;
+    toc(d, ts);
+    log.push("[L fresh] TOC: " + tocText(d) + "\n  " + checkTOC(d));
+    f.move(d.pages[3]);
+    log.push("[L moved] " + checkTOC(d));
+    return d;
+});
+
+// M: chapter entries without page numbers, section entries with them
+run("M mixed page numbers", function () {
+    var d = newDoc(5), c = d.paragraphStyles.add({name: "Chapter"}), s = d.paragraphStyles.add({name: "Section"});
+    var fc = put(d, 1, "Basics", c), fs = put(d, 2, "Loading paper", s);
+    var ts = d.tocStyles.add({name: "Main"});
+    var e1 = ts.tocStyleEntries.add({name: "Chapter"}); e1.pageNumberPosition = PageNumberPosition.NONE;
+    var e2 = ts.tocStyleEntries.add({name: "Section"}); e2.separator = "^t";
+    toc(d, ts);
+    log.push("[M fresh] TOC: " + tocText(d) + "\n  " + checkTOC(d));
+    fc.move(d.pages[3]); fs.move(d.pages[4]);
+    log.push("[M both moved] " + checkTOC(d));
+    return d;
+});
+
+// N: two TOC styles with the same entry style, one of them with Include Book Documents on
+run("N two styles, one wants a book", function () {
+    var d = newDoc(3), h = d.paragraphStyles.add({name: "Head"});
+    put(d, 1, "Getting started", h);
+    var ts = d.tocStyles.add({name: "Main"}); var e = ts.tocStyleEntries.add({name: "Head"}); e.separator = "^t";
+    var old = d.tocStyles.add({name: "Old book TOC"}); old.tocStyleEntries.add({name: "Head"}); old.includeBookDocuments = true;
+    toc(d, ts);
+    log.push("[N fresh] " + checkTOC(d));
+    return d;
+});
+
 log.join("\n");
 """
 

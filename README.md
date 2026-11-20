@@ -4,6 +4,9 @@ An ExtendScript for Adobe InDesign that compares the table of contents with the 
 
 If you have not edited the table of contents by hand, Layout > Update Table of Contents before export is enough. This script is for seeing what is out of date first.
 
+- Video: https://youtu.be/fau60vtewbc
+- Written guide: https://www.linguist-coder.com/2026/11/check-indesign-toc-against-headings.html
+
 ## Install
 
 1. Download `CheckTOC.jsx` from the [latest release](https://github.com/linguist-coder/indesign-toc-check/releases/latest).

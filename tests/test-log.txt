@@ -1,0 +1,43 @@
+# single
+Adobe InDesign 21.6.0.57
+units: 2054187363 h=66
+entry names: Chapter / Heads:Section
+TOC story: Contents | Getting<LB>started<TAB>2 | Loading paper3 | Printing labels4 | Cleaning<TAB>5
+[0 fresh] TOC matches the headings (4 checked).
+[1 edited heading] Not in TOC (p.3): Loading roll paper
+No matching heading: Loading paper3
+[2 + moved frame] Not in TOC (p.3): Loading roll paper
+Page moved 4 -> 6: Printing labels
+No matching heading: Loading paper3
+[3 + new heading] Not in TOC (p.3): Loading roll paper
+Page moved 4 -> 6: Printing labels
+Not in TOC (p.5): Troubleshooting
+No matching heading: Loading paper3
+(1 heading(s) on the pasteboard or overset were skipped.)
+[4 + deleted heading] Not in TOC (p.3): Loading roll paper
+Page moved 4 -> 6: Printing labels
+Not in TOC (p.5): Troubleshooting
+No matching heading: Loading paper3
+No matching heading: Cleaning
+(1 heading(s) on the pasteboard or overset were skipped.)
+[5 regenerated] TOC matches the headings (4 checked).
+(1 heading(s) on the pasteboard or overset were skipped.)
+
+# book
+docs open before test: 0
+TOC: Contents | Getting started<TAB>2 | Loading paper<TAB>3 | Printing labels<TAB>5 | Cleaning<TAB>6
+open docs before: 1
+[0 fresh] TOC matches the headings (4 checked in t.indb).
+open docs after: 1
+[1 edited in open ch2] Not in TOC (ch2.indd p.6): Cleaning the head
+No matching heading: Cleaning
+ch2 still open: true
+[2 + page added in ch1] Page moved 2 -> 3 (ch1.indd): Getting started
+Page moved 3 -> 4 (ch1.indd): Loading paper
+Page moved 5 -> 6 (ch2.indd): Printing labels
+Not in TOC (ch2.indd p.7): Cleaning the head
+No matching heading: Cleaning
+[3 regenerated] TOC matches the headings (4 checked in t.indb).
+open docs at end: 1
+[4 book closed] This TOC takes headings from a book. Open the book (.indb) that contains this document and run the script again.
+docs open after test: 0

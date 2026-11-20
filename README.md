@@ -18,7 +18,7 @@ Make the document that holds the table of contents active, then double-click `Ch
 ```text
 Not in TOC (p.3): Loading roll paper
 Page moved 4 -> 6: Printing labels
-No matching heading: Cleaning
+No matching heading: Cleaning ... 5
 ```
 
 If the table of contents style uses Include Book Documents, open the book (.indb) first. The script then reads the headings in every chapter. Chapters that are not open are opened without a window and closed without saving.
@@ -27,7 +27,8 @@ How it matches:
 
 - The script infers which table of contents style made the table of contents by comparing the paragraph styles of its lines (not the title) with each style's entry styles, and reads only the styles that match. If two styles use the same entry styles, they are combined and the alert names them. If none match, the script stops and checks nothing.
 - Styles in a style group are matched with the group name (Heads:Section and Sidebar:Section are different).
-- A contents line matches a heading when the text before its last tab is the heading (the rest is the page number), when the whole line is the heading (no page number, so the page is not checked), or when it starts with the heading followed by digits or a roman numeral. The last one is a guess for entries with no tab, so use a tab as the separator if you can.
+- The script reads each entry's page number setting. If the entry shows no page number, the whole contents line must be the heading and the page is not checked. If it shows page numbers, the text before the last tab must be the heading (the rest is the page number), or the line must start with the heading followed by digits or a roman numeral. The last one is a guess for entries with no tab, so use a tab as the separator if you can.
+- Contents lines with no matching heading are shown whole, with " ... " for a tab.
 - Numbered headings match with their current number in front ("1. Getting started") or without it. A line with an old number does not match.
 - Headings with the same text are first paired with the line that has their own page number.
 - Text is compared after line breaks, tabs and repeated spaces become one space, so a contents line that was shortened on purpose is reported as a mismatch.

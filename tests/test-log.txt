@@ -20,7 +20,7 @@ No matching heading: Loading paper3
 Page moved 4 -> 6: Printing labels
 Not in TOC (p.5): Troubleshooting
 No matching heading: Loading paper3
-No matching heading: Cleaning
+No matching heading: Cleaning ... 5
 (1 heading(s) on the pasteboard or overset were skipped.)
 [5 regenerated] TOC matches the headings (4 checked).
 (1 heading(s) on the pasteboard or overset were skipped.)
@@ -32,17 +32,17 @@ open docs before: 1
 [0 fresh] TOC matches the headings (4 checked in t.indb).
 open docs after: 1
 [1 edited in open ch2] Not in TOC (ch2.indd p.6): Cleaning the head
-No matching heading: Cleaning
+No matching heading: Cleaning ... 6
 ch2 still open: true
 [2 + page added in ch1] Page moved 2 -> 3 (ch1.indd): Getting started
 Page moved 3 -> 4 (ch1.indd): Loading paper
 Page moved 5 -> 6 (ch2.indd): Printing labels
 Not in TOC (ch2.indd p.7): Cleaning the head
-No matching heading: Cleaning
+No matching heading: Cleaning ... 6
 [3 regenerated] TOC matches the headings (4 checked in t.indb).
 open docs at end: 1
-[3b ch2 file missing] No matching heading: Printing labels
-No matching heading: Cleaning the head
+[3b ch2 file missing] No matching heading: Printing labels ... 6
+No matching heading: Cleaning the head ... 7
 Missing chapter file: ch2.indd
 [3c appendix added] TOC matches the headings (4 checked in t.indb).
 [3d appendix file missing] No differences in the chapters that could be read. The book was not fully checked.
@@ -75,10 +75,10 @@ No matching heading: PrintingLabels5
   TOC matches the headings (1 checked).
 [K number 99] TOC: 99.<TAB>Cleaning<TAB>3
   Not in TOC (p.3): Cleaning
-No matching heading: 99. Cleaning
+No matching heading: 99. ... Cleaning ... 3
 [K extra word] TOC: Wrong Cleaning<TAB>3
   Not in TOC (p.3): Cleaning
-No matching heading: Wrong Cleaning
+No matching heading: Wrong Cleaning ... 3
 [L fresh] TOC: Introduction
   TOC matches the headings (1 checked).
 [L moved] TOC matches the headings (1 checked).
@@ -87,4 +87,15 @@ No matching heading: Wrong Cleaning
 [M both moved] Page moved 3 -> 5: Loading paper
 [N fresh] This TOC takes headings from a book. Open the book (.indb) that contains this document and run the script again.
 These TOC styles use the same entry styles, so their headings were combined: Main, Old book TOC.
+[O fresh] TOC: Part<TAB>2
+  TOC matches the headings (1 checked).
+[O renamed and moved] Not in TOC (p.5): Part 2
+No matching heading: Part ... 2
+[P fresh] TOC: Getting<TAB>started
+  TOC matches the headings (1 checked).
+[P shortened] Not in TOC (p.2): Getting
+No matching heading: Getting ... started
+[Q renamed] TOC: 1.<TAB>API2
+  Not in TOC (p.2): SDK
+No matching heading: 1. ... API2
 docs open after test: 0

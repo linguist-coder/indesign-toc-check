@@ -5,8 +5,6 @@
 // the script then reads the headings in every chapter of that book.
 
 var JUNK = new RegExp("[\\r\\n\\t\\x03\\uFFFC\\uFEFF]", "g");
-// a page number: 12, xiv, or a short prefix such as A-12
-var PAGE = /^(([A-Za-z]{1,3}[-.:]?)?\d+|[ivxlcdm]+)$/i;
 
 function clean(s) {
     return String(s).replace(JUNK, " ").replace(/\s+/g, " ").replace(/^\s+|\s+$/g, "");
@@ -41,10 +39,12 @@ function readDoc(d, set, readToc, r) {
             var p = st.paragraphs[k];
             var raw = String(p.contents).replace(/\r$/, "");
             if (isToc) {
-                var t = shown(raw);
+                var t = clean(raw);
                 if (!t || (k === 0 && set.titles[t])) { continue; } // the TOC title
-                r.toc.push({ raw: raw, t: t });
+                // shown whole in the report, a tab as " ... ": "Cleaning ... 5"
+                r.toc.push({ raw: raw, t: clean(raw.replace(/\t/g, " ... ")) });
             } else if (set.styles[stylePath(p.appliedParagraphStyle)]) {
+                var mode = set.styles[stylePath(p.appliedParagraphStyle)];
                 var h = clean(raw);
                 if (!h) { continue; }
                 var fr = p.characters[0].parentTextFrames[0];
@@ -55,27 +55,22 @@ function readDoc(d, set, readToc, r) {
                 if (p.bulletsAndNumberingListType == ListType.NUMBERED_LIST) {
                     keys.unshift(clean(p.bulletsAndNumberingResultText + " " + h));
                 }
-                r.heads.push({ t: h, keys: keys, pg: fr.parentPage.name, doc: d.name });
+                r.heads.push({ t: h, keys: keys, mode: mode, pg: fr.parentPage.name, doc: d.name });
             }
         }
     }
 }
 
-// A TOC line as shown in the report: without its page number when it has a tab before it.
-function shown(raw) {
-    var tab = raw.lastIndexOf("\t");
-    if (tab >= 0 && PAGE.test(clean(raw.substring(tab + 1)))) { return clean(raw.substring(0, tab)); }
-    return clean(raw);
-}
-
 // Page number the TOC line e gives for heading h: "" if the line has no page number,
-// null if e is not that heading.
+// null if e is not that heading. h.mode is the TOC entry's page number setting:
+// "page", "none", or "either" when combined TOC styles disagree.
 function pageFor(e, h) {
     var tab = e.raw.lastIndexOf("\t"), whole = clean(e.raw);
     for (var i = 0; i < h.keys.length; i++) {
         var key = h.keys[i];
+        if (h.mode !== "page" && whole === key) { return ""; } // TOC entry without page numbers
+        if (h.mode === "none") { continue; }
         if (tab >= 0 && clean(e.raw.substring(0, tab)) === key) { return clean(e.raw.substring(tab + 1)); }
-        if (whole === key) { return ""; } // TOC without page numbers
         if (whole.indexOf(key) === 0) { // no tab: the page number is glued to the entry
             var rest = clean(whole.substring(key.length).replace(/^[\s.]+/, ""));
             if (/^(\d+|[ivxlcdm]+)$/i.test(rest)) { return rest; } // digits only: a guess
@@ -114,7 +109,10 @@ function checkTOC(doc) {
         if (used[i].title) { set.titles[clean(used[i].title)] = true; }
         if (used[i].includeBookDocuments) { wantBook = true; }
         if (used[i].includeHidden) { set.hidden = true; }
-        for (j = 0; j < used[i].tocStyleEntries.length; j++) { set.styles[used[i].tocStyleEntries[j].name] = true; }
+        for (j = 0; j < used[i].tocStyleEntries.length; j++) {
+            var te = used[i].tocStyleEntries[j], m = te.pageNumberPosition == PageNumberPosition.NONE ? "none" : "page";
+            set.styles[te.name] = (set.styles[te.name] && set.styles[te.name] !== m) ? "either" : m;
+        }
     }
     var r = { toc: [], heads: [], skipped: 0, hidden: 0 }, notes = [];
     if (used.length > 1) {

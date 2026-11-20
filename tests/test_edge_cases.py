@@ -209,6 +209,44 @@ run("N two styles, one wants a book", function () {
     return d;
 });
 
+// --- Cases from review round 3 ---
+// O: "Part<TAB>2" in the TOC, heading renamed "Part 2" and moved to page 5 (TOC with page numbers)
+run("O heading text looks like the old line", function () {
+    var d = newDoc(5), h = d.paragraphStyles.add({name: "Head"});
+    var f = put(d, 1, "Part", h);
+    var ts = d.tocStyles.add({name: "Main"}); var e = ts.tocStyleEntries.add({name: "Head"}); e.separator = "^t";
+    toc(d, ts);
+    log.push("[O fresh] TOC: " + tocText(d) + "\n  " + checkTOC(d));
+    f.paragraphs[0].contents = "Part 2"; f.move(d.pages[4]);
+    log.push("[O renamed and moved] " + checkTOC(d));
+    return d;
+});
+
+// P: TOC without page numbers, heading "Getting<TAB>started" shortened to "Getting"
+run("P tab inside a line without page numbers", function () {
+    var d = newDoc(3), h = d.paragraphStyles.add({name: "Head"});
+    var f = put(d, 1, "Getting\tstarted", h);
+    var ts = d.tocStyles.add({name: "Main"}); var e = ts.tocStyleEntries.add({name: "Head"});
+    e.pageNumberPosition = PageNumberPosition.NONE;
+    toc(d, ts);
+    log.push("[P fresh] TOC: " + tocText(d) + "\n  " + checkTOC(d));
+    f.paragraphs[0].contents = "Getting";
+    log.push("[P shortened] " + checkTOC(d));
+    return d;
+});
+
+// Q: short numbered heading "API" renamed "SDK" after generating, no tab
+run("Q numbered heading renamed", function () {
+    var d = newDoc(3);
+    var n = d.paragraphStyles.add({name: "NumHead", bulletsAndNumberingListType: ListType.NUMBERED_LIST});
+    var f = put(d, 1, "API", n);
+    var ts = d.tocStyles.add({name: "Main"}); ts.tocStyleEntries.add({name: "NumHead"});
+    toc(d, ts);
+    f.paragraphs[0].contents = "SDK";
+    log.push("[Q renamed] TOC: " + tocText(d) + "\n  " + checkTOC(d));
+    return d;
+});
+
 log.join("\n");
 """
 
